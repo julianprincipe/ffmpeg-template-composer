@@ -1188,7 +1188,9 @@ export function VideoTemplateComposer() {
                     </Button>
                   </div>
                 </div>
-                <pre className="text-xs bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto whitespace-pre-wrap font-mono">{ffmpegCommand}</pre>
+                <div className="max-h-64 overflow-y-auto">
+                  <pre className="text-xs bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto whitespace-pre-wrap font-mono break-all">{ffmpegCommand}</pre>
+                </div>
               </Card>
             )}
           </div>
