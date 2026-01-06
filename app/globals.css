@@ -86,4 +86,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Fix portal positioning issues */
+  nextjs-portal {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+  }
 }
