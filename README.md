@@ -6,15 +6,19 @@ A visual tool to create FFmpeg video composition commands. Design your video lay
 
 ## Features
 
-- 🎨 **Visual Canvas** - Drag and drop video layers on an interactive canvas
-- 📐 **Resize Handles** - 8-point resize handles for precise control
+- 🎨 **Visual Canvas** - Drag and drop video and text layers on an interactive canvas
+- 🎬 **Video Layers** - Position and resize video placeholders with 8-point handles
+- 📝 **Text Layers** - Add text with customizable fonts, sizes, colors, bold, and italic
+- 📐 **Resize Handles** - 8-point resize handles for precise video control
 - 🔒 **Aspect Ratio Lock** - Lock/unlock aspect ratio per video layer
-- 📋 **Duplicate Layers** - Quickly duplicate existing video configurations
+- 📋 **Duplicate Layers** - Quickly duplicate existing video or text configurations
 - 👁️ **Visibility Toggle** - Show/hide layers without deleting them
 - 📊 **Z-Index Control** - Move layers up/down in the stack
 - 🔲 **Grid & Snap** - Optional grid overlay with snap-to-grid functionality
 - 🖼️ **Template Overlay** - Upload a PNG template with adjustable opacity
-- 📝 **FFmpeg Generation** - Auto-generate FFmpeg filter_complex commands
+- 🎨 **Font Customization** - Choose from 10+ fonts with size, color, bold, and italic options
+- 👀 **Real-time Preview** - See exactly how your composition will look
+- 📝 **FFmpeg Generation** - Auto-generate FFmpeg filter_complex commands with drawtext
 - 💾 **Export Options** - Copy to clipboard or download as .sh file
 
 ## Getting Started
@@ -42,15 +46,21 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Usage
 
-1. **Upload Template (Optional)**: Click "Upload PNG" to load a template image that will overlay on top of your video composition
-2. **Add Video Layers**: Click "Add Video" to create video placeholders
-3. **Position & Resize**: 
+1. **Upload Template (Optional)**: Click "Upload PNG" to load a template image that will overlay on top of your composition
+2. **Add Layers**: 
+   - Click "Video" to create video placeholders
+   - Click "Text" to add text layers
+3. **Position & Configure**: 
    - Drag layers to position them
-   - Use the yellow corner/edge handles to resize
-   - Lock aspect ratio with the "Aspect" button
-4. **Configure**: Adjust width, height, X/Y position via input fields for precise values
-5. **Generate Command**: Click "Generate FFmpeg Command" to create the shell command
-6. **Export**: Copy the command or save it as a .sh file
+   - **Videos**: Use the yellow corner/edge handles to resize, lock aspect ratio with the "Aspect" button
+   - **Text**: Choose font, size, color, and apply bold/italic styles
+4. **Fine-tune**: Adjust position and properties via input fields for precise values
+5. **Layer Management**: 
+   - Show/hide layers with the eye icon
+   - Duplicate layers with the copy icon
+   - Reorder layers with up/down arrows
+6. **Generate Command**: Click "Generate FFmpeg Command" to create the shell command
+7. **Export**: Copy the command or save it as a .sh file
 
 ## Generated FFmpeg Command
 
@@ -58,10 +68,11 @@ The tool generates a complete FFmpeg command with:
 - Multiple video inputs
 - Proper scaling with aspect ratio preservation
 - Overlay positioning
+- Text rendering with drawtext filter
 - PNG template compositing
 - H.264 output encoding
 
-Example output:
+Example output with video and text:
 ```bash
 ffmpeg \
   -i "video_1.mp4" \
@@ -75,8 +86,10 @@ ffmpeg \
     pad=540:540:(ow-iw)/2:(oh-ih)/2[v1];
     [base][v0]overlay=20:20[tmp0];
     [tmp0][v1]overlay=520:20[videos];
-    [videos][2:v]overlay=0:0
+    [videos]drawtext=text='Sample Text':fontfile='/System/Library/Fonts/Arial.ttf':fontsize=48:fontcolor=0xffffff:x=50:y=1200[txt0];
+    [txt0][2:v]overlay=0:0[output]
   " \
+  -map "[output]" \
   -c:v libx264 -pix_fmt yuv420p -crf 18 -preset medium \
   -shortest \
   "output.mp4"
