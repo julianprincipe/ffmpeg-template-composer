@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FFmpeg Template Composer
+
+A visual tool to create FFmpeg video composition commands. Design your video layout by dragging and resizing video placeholders, then generate the corresponding FFmpeg command.
+
+![FFmpeg Template Composer](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)
+
+## Features
+
+- 🎨 **Visual Canvas** - Drag and drop video layers on an interactive canvas
+- 📐 **Resize Handles** - 8-point resize handles for precise control
+- 🔒 **Aspect Ratio Lock** - Lock/unlock aspect ratio per video layer
+- 📋 **Duplicate Layers** - Quickly duplicate existing video configurations
+- 👁️ **Visibility Toggle** - Show/hide layers without deleting them
+- 📊 **Z-Index Control** - Move layers up/down in the stack
+- 🔲 **Grid & Snap** - Optional grid overlay with snap-to-grid functionality
+- 🖼️ **Template Overlay** - Upload a PNG template with adjustable opacity
+- 📝 **FFmpeg Generation** - Auto-generate FFmpeg filter_complex commands
+- 💾 **Export Options** - Copy to clipboard or download as .sh file
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/ffmpeg-template-composer.git
+cd ffmpeg-template-composer
+
+# Install dependencies
+pnpm install
+
+# Start development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Upload Template (Optional)**: Click "Upload PNG" to load a template image that will overlay on top of your video composition
+2. **Add Video Layers**: Click "Add Video" to create video placeholders
+3. **Position & Resize**: 
+   - Drag layers to position them
+   - Use the yellow corner/edge handles to resize
+   - Lock aspect ratio with the "Aspect" button
+4. **Configure**: Adjust width, height, X/Y position via input fields for precise values
+5. **Generate Command**: Click "Generate FFmpeg Command" to create the shell command
+6. **Export**: Copy the command or save it as a .sh file
 
-## Learn More
+## Generated FFmpeg Command
 
-To learn more about Next.js, take a look at the following resources:
+The tool generates a complete FFmpeg command with:
+- Multiple video inputs
+- Proper scaling with aspect ratio preservation
+- Overlay positioning
+- PNG template compositing
+- H.264 output encoding
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Example output:
+```bash
+ffmpeg \
+  -i "video_1.mp4" \
+  -i "video_2.mp4" \
+  -i "template.png" \
+  -filter_complex "
+    color=size=1080x1920:color=black:d=1[base];
+    [0:v]scale=540:540:force_original_aspect_ratio=decrease,
+    pad=540:540:(ow-iw)/2:(oh-ih)/2[v0];
+    [1:v]scale=540:540:force_original_aspect_ratio=decrease,
+    pad=540:540:(ow-iw)/2:(oh-ih)/2[v1];
+    [base][v0]overlay=20:20[tmp0];
+    [tmp0][v1]overlay=520:20[videos];
+    [videos][2:v]overlay=0:0
+  " \
+  -c:v libx264 -pix_fmt yuv420p -crf 18 -preset medium \
+  -shortest \
+  "output.mp4"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **UI Components**: shadcn/ui
+- **Icons**: Lucide React
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
